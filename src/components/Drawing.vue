@@ -4,7 +4,16 @@
 
 <script>
 export default {
-  name: "DrawingComponent"
+  name: "DrawingComponent",
+  props: [],
+  data() {
+
+  },
+  mounted() {
+  },
+  created() {
+  },
+  methods: {}
 }
 </script>
 

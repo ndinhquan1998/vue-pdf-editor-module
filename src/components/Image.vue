@@ -4,7 +4,16 @@
 
 <script>
 export default {
-  name: "ImageComponent"
+  name: "ImageComponent",
+  props: [],
+  data() {
+
+  },
+  mounted() {
+  },
+  created() {
+  },
+  methods: {}
 }
 </script>
 
