@@ -4,7 +4,16 @@
 
 <script>
 export default {
-  name: "TextComponent"
+  name: "TextComponent",
+  props: [],
+  data() {
+
+  },
+  mounted() {
+  },
+  created() {
+  },
+  methods: {}
 }
 </script>
 
