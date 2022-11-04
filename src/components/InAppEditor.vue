@@ -1,12 +1,4 @@
 <template>
-  <!--  <div class="hello">-->
-  <!--    <h1>{{ msg }}</h1>-->
-  <!--    <p>-->
-  <!--      For a guide and recipes on how to configure / customize this project,<br>-->
-  <!--      check out the-->
-  <!--      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.-->
-  <!--    </p>-->
-  <!--  </div>-->
   <div class="flex flex-col items-center py-16 bg-gray-100 min-h-screen">
     <div
         class="fixed z-10 top-0 left-0 right-0 h-12 flex justify-center items-center
@@ -201,7 +193,7 @@ import {save} from "@/utils/PDF.js";
 getAsset('makeTextPDF');
 
 export default {
-  name: 'HelloWorld',
+  name: 'InAppEditor',
   components: {
     PDFPage,
     // Image,
