@@ -78,7 +78,6 @@
     </div>
     <div v-if="addDrawing">
       <div
-          transition:fly={{ y: -200, duration: 500 }}
           class="fixed z-10 top-0 left-0 right-0 border-b border-gray-300 bg-white
       shadow-lg"
           style="height: 50%;">
@@ -186,11 +185,11 @@ import * as PDFLib from 'pdf-lib';
 
 import {getAsset} from "@/utils/prepareAssets";
 // import Tailwind from "./Tailwind.svelte";
-// import PDFPage from "@/components/PDFPage";
+import PDFPage from "@/components/PDFPage";
 // import Image from "@/components/Image";
 // import Text from "@/components/Text";
 // import Drawing from "@/components/Drawing";
-// import DrawingCanvas from "@/components/DrawingCanvas";
+import DrawingCanvas from "@/components/DrawingCanvas";
 import {fetchFont} from "@/utils/prepareAssets.js";
 import {
   readAsImage,
@@ -203,7 +202,13 @@ getAsset('makeTextPDF');
 
 export default {
   name: 'HelloWorld',
-  // components: {PDFPage, Image, Text, Drawing, DrawingCanvas},
+  components: {
+    PDFPage,
+    // Image,
+    // Text,
+    // Drawing,
+    DrawingCanvas
+  },
   props: {
     msg: String
   },

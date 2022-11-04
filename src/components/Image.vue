@@ -1,10 +1,10 @@
 <template>
-
+<div>image</div>
 </template>
 
 <script>
 export default {
-  name: "Image"
+  name: "ImageComponent"
 }
 </script>
 

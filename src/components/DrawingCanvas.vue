@@ -1,10 +1,10 @@
 <template>
-
+  <div>drawingcanvas</div>
 </template>
 
 <script>
 export default {
-  name: "DrawingCanvas"
+  name: "DrawingCanvasComponent"
 }
 </script>
 
