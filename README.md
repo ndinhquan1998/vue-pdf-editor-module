@@ -1,24 +1,4 @@
-# pdf-editor
+# vue-pdf-editor-module
 
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+rewrite to VueJS 2.x based from  ShizukuIchi / pdf-editor Svelte Project
+ https://github.com/ShizukuIchi/pdf-editor
