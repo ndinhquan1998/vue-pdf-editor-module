@@ -1,5 +1,5 @@
 <template>
-  <div class="content"><canvas id="pdf-container" /></div>
+  <canvas ref="canvas" />
 </template>
 
 <script>
@@ -8,10 +8,11 @@ export default {
   props:['page'],
   data() {
     return{
-      canvas:null,
-      width:null,
-      height:null,
+      // canvas:null,
+      // width:null,
+      // height:null,
       clientWidth:null,
+      scale:1,
     }
   },
   mounted() {
@@ -20,15 +21,15 @@ export default {
   methods: {
     measure() {
       this.$emit("onMeasure", {
-        scale: this.canvas.clientWidth / this.width});
+        scale: this.scale});
     },
     async render() {
       const _page = await this.page;
-      this.canvas = document.getElementById("pdf-container");
-      const context = this.canvas.getContext("2d");
-      const viewport = _page.getViewport({ scale: 1, rotation: 0 });
-      this.width = viewport.width;
-      this.height = viewport.height;
+      let canvas = this.$refs.canvas;
+      const context = canvas.getContext("2d");
+      const viewport = _page.getViewport({ scale: this.scale, rotation: 0 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
       await _page.render({
         canvasContext: context,
         viewport

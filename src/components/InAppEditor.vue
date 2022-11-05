@@ -7,14 +7,14 @@
           type="file"
           name="pdf"
           id="pdf"
-          @onChange="onUploadPDF"
+          @change="onUploadPDF"
           class="hidden"/>
       <input
           type="file"
           id="image"
           name="image"
           class="hidden"
-          @onChange="onUploadImage"/>
+          @change="onUploadImage"/>
       <label
           class="whitespace-no-wrap bg-blue-500 hover:bg-blue-700 text-white
       font-bold py-1 px-3 md:px-4 rounded mr-3 cursor-pointer md:mr-4"
@@ -36,13 +36,13 @@
         cursor-pointer"
             for="text"
             :class="[selectedPageIndex < 0 ?'cursor-not-allowed bg-gray-500':'']"
-            @onClick="onAddTextField">
+            @click="onAddTextField">
           <img src="notes.svg" alt="An icon for adding text"/>
         </label>
         <label
             class="flex items-center justify-center h-full w-8 hover:bg-gray-500
         cursor-pointer"
-            @onClick="onAddDrawing"
+            @click="onAddDrawing"
             :class="[selectedPageIndex < 0 ?'cursor-not-allowed bg-gray-500':'']">
           <img src="gesture.svg" alt="An icon for adding drawing"/>
         </label>
@@ -56,34 +56,21 @@
             :value="pdfName"/>
       </div>
       <button
-          @onClick="savePDF"
+          @click="savePDF"
           class="w-20 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3
       md:px-4 mr-3 md:mr-4 rounded"
           :class="[(pages.length === 0 || saving || !pdfFile) ?'cursor-not-allowed bg-blue-700':'']">
         {{ saving ? 'Saving' : 'Save' }}
       </button>
-      <a href="https://github.com/ShizukuIchi/pdf-editor">
-        <img
-            src="/GitHub-Mark-32px.png"
-            alt="A GitHub icon leads to personal GitHub page"/>
-      </a>
     </div>
-    <div v-if="addDrawing">
+    <div v-if="addingDrawing">
       <div
           class="fixed z-10 top-0 left-0 right-0 border-b border-gray-300 bg-white
       shadow-lg"
           style="height: 50%;">
         <DrawingCanvas
-            @onFinish="e => {
-      const { originWidth, originHeight, path } = e.detail;
-      let scale = 1;
-      if (originWidth > 500) {
-      scale = 500 / originWidth;
-      }
-      addDrawing(originWidth, originHeight, path, scale);
-      addingDrawing = false;
-      }"
-            @onCancel="() => (addingDrawing = false)"/>
+            @onFinish="onFinishDrawingCanvas"
+            @onCancel="onCancelDrawingCanvas"/>
       </div>
     </div>
     <div v-if="pages.length">
@@ -96,64 +83,63 @@
             :value="pdfName"/>
       </div>
       <div class="w-full">
-        <!--        {#each pages as page, pIndex (page)}-->
         <div v-for="(page,pIndex) in pages" :key="pIndex">
           <div
               class="p-5 w-full flex flex-col items-center overflow-hidden"
-              @mousedown="() => selectPage(pIndex)"
-              @onTouchstart="() => selectPage(pIndex)">
+              @mousedown="selectPage(pIndex)"
+              @touchstart="selectPage(pIndex)">
             <div
                 class="relative shadow-lg"
                 :class="[pIndex === selectedPageIndex ?'shadow-outline':'']">
               <PDFPage
-                  @onMeasure="(e) => onMeasure(e.detail.scale, pIndex)"
-                  {page}/>
-              <div
-                  class="absolute top-0 left-0 transform origin-top-left"
-                  :style="{ transform: 'scale('+ this.pagesScale[pIndex]+')'}"
-              >
-                <div v-for="(object, oIndex) in allObjects[pIndex]" :key="oIndex">
-                  <div>
-                    <div v-if="object.type === 'image'">
-                      <Image
-                          @onUpdate="e => updateObject(object.id, e.detail)"
-                          @onDelete="() => deleteObject(object.id)"
-                          :file="object.file"
-                          :payload="object.payload"
-                          :x="object.x"
-                          :y="object.y"
-                          :width="object.width"
-                          :height="object.height"
-                          :pageScale="pagesScale[pIndex]"/>
-                    </div>
-                    <div v-else-if="object.type === 'text'">
-                      <Text
-                          @onUpdate="e => updateObject(object.id, e.detail)"
-                          @onDelete="() => deleteObject(object.id)"
-                          @onSelectFont={selectFontFamily}
-                          :text="object.text"
-                          :x="object.x"
-                          :y="object.y"
-                          :size="object.size"
-                          :lineHeight="object.lineHeight"
-                          :fontFamily="object.fontFamily"
-                          :pageScale="pagesScale[pIndex]"/>
-                    </div>
-                    <div v-else-if="object.type === 'drawing'">
-                      <Drawing
-                          @onUpdate="e => updateObject(object.id, e.detail)"
-                          @onDelete="() => deleteObject(object.id)"
-                          :path="object.path"
-                          :x="object.x"
-                          :y="object.y"
-                          :width="object.width"
-                          :originWidth="object.originWidth"
-                          :originHeight="object.originHeight"
-                          :pageScale="pagesScale[pIndex]"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  @onMeasure="onMeasure($event, pIndex)"
+                  :page="page"/>
+              <!--              <div-->
+              <!--                  class="absolute top-0 left-0 transform origin-top-left noTouchAction"-->
+              <!--                  :style="{transform: `scale(${pagesScale[pIndex]})`}"-->
+              <!--              >-->
+              <!--                <div v-for="(object, oIndex) in allObjects[pIndex]" :key="oIndex">-->
+              <!--                  <div>-->
+              <!--                    <div v-if="object.type === 'image'">-->
+              <!--                      <Image-->
+              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
+              <!--                          @onDelete="() => deleteObject(object.id)"-->
+              <!--                          :file="object.file"-->
+              <!--                          :payload="object.payload"-->
+              <!--                          :x="object.x"-->
+              <!--                          :y="object.y"-->
+              <!--                          :width="object.width"-->
+              <!--                          :height="object.height"-->
+              <!--                          :pageScale="pagesScale[pIndex]"/>-->
+              <!--                    </div>-->
+              <!--                    <div v-else-if="object.type === 'text'">-->
+              <!--                      <Text-->
+              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
+              <!--                          @onDelete="() => deleteObject(object.id)"-->
+              <!--                          @onSelectFont={selectFontFamily}-->
+              <!--                          :text="object.text"-->
+              <!--                          :x="object.x"-->
+              <!--                          :y="object.y"-->
+              <!--                          :size="object.size"-->
+              <!--                          :lineHeight="object.lineHeight"-->
+              <!--                          :fontFamily="object.fontFamily"-->
+              <!--                          :pageScale="pagesScale[pIndex]"/>-->
+              <!--                    </div>-->
+              <!--                    <div v-else-if="object.type === 'drawing'">-->
+              <!--                      <Drawing-->
+              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
+              <!--                          @onDelete="() => deleteObject(object.id)"-->
+              <!--                          :path="object.path"-->
+              <!--                          :x="object.x"-->
+              <!--                          :y="object.y"-->
+              <!--                          :width="object.width"-->
+              <!--                          :originWidth="object.originWidth"-->
+              <!--                          :originHeight="object.originHeight"-->
+              <!--                          :pageScale="pagesScale[pIndex]"/>-->
+              <!--                    </div>-->
+              <!--                  </div>-->
+              <!--                </div>-->
+              <!--              </div>-->
             </div>
           </div>
         </div>
@@ -216,11 +202,12 @@ export default {
       selectedPageIndex: -1,
       saving: false,
       addingDrawing: false,
+      DEBUG_LINK:"https://raw.githubusercontent.com/pdf-association/pdf20examples/master/pdf20-utf8-test.pdf"
     }
   },
   async mounted() {
     try {
-      const res = await fetch("https://raw.githubusercontent.com/pdf-association/pdf20examples/master/pdf20-utf8-test.pdf");
+      const res = await fetch("/UnityGraphicsProgramming-vol1.pdf");
       const pdfBlob = await res.blob();
       await this.addPDF(pdfBlob);
       this.selectedPageIndex = 0;
@@ -236,7 +223,21 @@ export default {
     const pdfDoc = await PDFLib.PDFDocument.create();
     console.log("-> pdfDoc", pdfDoc);
   },
+  watch: {},
   methods: {
+    onFinishDrawingCanvas(e) {
+      const {originWidth, originHeight, path} = e;
+      let scale = 1;
+      if (originWidth > 500) {
+        scale = 500 / originWidth;
+      }
+      this.addDrawing(originWidth, originHeight, path, scale);
+      this.onCancelDrawingCanvas();
+    },
+    onCancelDrawingCanvas() {
+      console.log('CLOSE')
+      this.addingDrawing = false;
+    },
     genID() {
       let id = 0;
       return function genId() {
@@ -274,7 +275,7 @@ export default {
     async onUploadImage(e) {
       const file = e.target.files[0];
       if (file && this.selectedPageIndex >= 0) {
-        this.addImage(file);
+        await this.addImage(file);
       }
       e.target.value = null;
     },
@@ -352,7 +353,7 @@ export default {
     },
 
     selectFontFamily(event) {
-      const name = event.detail.name;
+      const name = event.name;
       fetchFont(name);
       this.currentFont = name;
     },
@@ -363,7 +364,7 @@ export default {
 
     updateObject(objectId, payload) {
       this.allObjects = this.allObjects.map((objects, pIndex) =>
-          pIndex == this.selectedPageIndex
+          pIndex === this.selectedPageIndex
               ? objects.map(object =>
                   object.id === objectId ? {...object, ...payload} : object
               )
@@ -373,14 +374,14 @@ export default {
 
     deleteObject(objectId) {
       this.allObjects = this.allObjects.map((objects, pIndex) =>
-          pIndex == this.selectedPageIndex
+          pIndex === this.selectedPageIndex
               ? objects.filter(object => object.id !== objectId)
               : objects
       );
     },
 
-    onMeasure(scale, i) {
-      this.pagesScale[i] = scale;
+    onMeasure(e, i) {
+      this.pagesScale[i] = e.scale;
     },
 
 // FIXME: Should wait all objects finish their async work
@@ -401,6 +402,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.noTouchAction {
+  touch-action: none
+}
+
 h3 {
   margin: 40px 0 0;
 }

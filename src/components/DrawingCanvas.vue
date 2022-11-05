@@ -7,13 +7,13 @@
       class="relative w-full h-full select-none">
     <div class="absolute right-0 bottom-0 mr-4 mb-4 flex">
       <button
-          @onClick={cancel}
+          @click="onClose"
           class=" w-24 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4
       rounded mr-4">
         Cancel
       </button>
       <button
-          @onClick={finish}
+          @click="onFinish"
           class="w-24 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4
       rounded">
         Done
@@ -24,19 +24,19 @@
           stroke-width="5"
           stroke-linejoin="round"
           stroke-linecap="round"
-          d={path}
+          :d="path"
           stroke="black"
           fill="none"/>
     </svg>
   </div>
 </template>
 <script>
-import pannableAreaMixin from "@/components/PannableAreaMixin";
+// import pannableAreaMixin from "@/components/PannableAreaMixin";
 
 export default {
   name: "DrawingCanvasComponent",
   components: {},
-  mixins: [pannableAreaMixin],
+  // mixins: [pannableAreaMixin],
   props: [],
   data() {
     return {
@@ -85,7 +85,7 @@ export default {
     handlePanEnd() {
       this.drawing = false;
     },
-    finish() {
+    onFinish() {
       if (!this.paths.length) return;
       const dx = -(this.minX - 10);
       const dy = -(this.minY - 10);
@@ -99,7 +99,7 @@ export default {
         }, "")
       });
     },
-    cancel() {
+    onClose() {
       this.$emit("onCancel");
     }
   }
