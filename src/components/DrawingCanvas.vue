@@ -1,10 +1,23 @@
 <template>
-  <div
-      ref="canvasElement"
-      @panstart="handlePanStart"
-      @panmove="handlePanMove"
-      @panend="handlePanEnd"
-      class="relative w-full h-full select-none">
+  <div class="relative w-full h-full">
+    <canvas-area
+        id="canvas-container"
+        @panstart="handlePanStart"
+        @panmove="handlePanMove"
+        @panend="handlePanEnd"
+        :path="path"
+        class="relative w-full h-full select-none"
+    >
+    </canvas-area>
+    <!--      <svg class="relative w-full h-full pointer-events-none">-->
+    <!--        <path-->
+    <!--            stroke-width="5"-->
+    <!--            stroke-linejoin="round"-->
+    <!--            stroke-linecap="round"-->
+    <!--            :d="path"-->
+    <!--            stroke="black"-->
+    <!--            fill="none"/>-->
+    <!--      </svg>-->
     <div class="absolute right-0 bottom-0 mr-4 mb-4 flex">
       <button
           @click="onClose"
@@ -19,28 +32,19 @@
         Done
       </button>
     </div>
-    <svg class="w-full h-full pointer-events-none">
-      <path
-          stroke-width="5"
-          stroke-linejoin="round"
-          stroke-linecap="round"
-          :d="path"
-          stroke="black"
-          fill="none"/>
-    </svg>
   </div>
 </template>
 <script>
-// import pannableAreaMixin from "@/components/PannableAreaMixin";
+import canvasArea from "@/components/CanvasArea";
 
 export default {
   name: "DrawingCanvasComponent",
-  components: {},
-  // mixins: [pannableAreaMixin],
+  components: {canvasArea},
+  mixins: [],
   props: [],
   data() {
     return {
-      canvas: null,
+      // canvas: null,
       x: 0,
       y: 0,
       path: "",
@@ -58,7 +62,8 @@ export default {
   },
   methods: {
     handlePanStart(event) {
-      if (event.detail.target !== this.canvas) {
+      let canvas = document.getElementById("canvas-container");
+      if (event.detail.target !== canvas) {
         return (this.drawing = false);
       }
       this.drawing = true;
@@ -72,7 +77,10 @@ export default {
       this.path += `M${this.x},${this.y}`;
     },
     handlePanMove(event) {
-      if (!this.drawing) return;
+      if (!this.drawing) {
+        return;
+      }
+      console.log("-> handlePanMove", event);
       this.x = event.detail.x;
       this.y = event.detail.y;
       this.minX = Math.min(this.minX, this.x);
@@ -81,8 +89,10 @@ export default {
       this.maxY = Math.max(this.maxY, this.y);
       this.paths.push(["L", this.x, this.y]);
       this.path += `L${this.x},${this.y}`;
+      console.log("-> this.path", this.path);
     },
     handlePanEnd() {
+      console.log("-> this.path", this.path);
       this.drawing = false;
     },
     onFinish() {

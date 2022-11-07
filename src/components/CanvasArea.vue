@@ -1,23 +1,33 @@
 <template>
-  <div/>
+  <div
+      ref="canvasElement">
+    <svg class="relative w-full h-full pointer-events-none">
+      <path
+          stroke-width="5"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+          :d="path"
+          stroke="black"
+          fill="none"/>
+    </svg>
+  </div>
 </template>
 
 <script>
 export default {
   name: "PannableAreaMixin",
-  props: [],
+  props: ['path'],
   data() {
     return {
-      x: null,
-      y: null,
+      x_mixin: null,
+      y_mixin: null,
     }
   },
   mounted() {
-    console.log("-> this.$refs.canvasElement", this.$refs.canvasElement);
     this.$refs.canvasElement.addEventListener('mousedown', this.handleMousedown);
     this.$refs.canvasElement.addEventListener('touchstart', this.handleTouchStart);
   },
-  destroyed() {
+  beforeDestroy() {
     this.$refs.canvasElement.removeEventListener('mousedown', this.handleMousedown);
     this.$refs.canvasElement.removeEventListener('touchstart', this.handleTouchStart);
   },
@@ -25,12 +35,12 @@ export default {
   },
   methods: {
     handleMousedown(event) {
-      this.x = event.clientX;
-      this.y = event.clientY;
+      this.x_mixin = event.clientX;
+      this.y_mixin = event.clientY;
       const target = event.target;
 
       this.$emit('panstart', {
-        detail: {x: this.x, y: this.y, target},
+        detail: {x: this.x_mixin, y: this.y_mixin, target},
       });
 
       this.$refs.canvasElement.addEventListener('mousemove', this.handleMousemove);
@@ -38,36 +48,36 @@ export default {
     },
 
     handleMousemove(event) {
-      const dx = event.clientX - this.x;
-      const dy = event.clientY - this.y;
-      this.x = event.clientX;
-      this.y = event.clientY;
+      const dx = event.clientX - this.x_mixin;
+      const dy = event.clientY - this.y_mixin;
+      this.x_mixin = event.clientX;
+      this.y_mixin = event.clientY;
 
       this.$emit('panmove', {
-            detail: {x: this.x, y: this.y, dx, dy},
-          });
+        detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
+      });
     },
 
     handleMouseup(event) {
-      this.x = event.clientX;
-      this.y = event.clientY;
+      this.x_mixin = event.clientX;
+      this.y_mixin = event.clientY;
 
       this.$emit('panend', {
-            detail: {x: this.x, y: this.y},
-          });
+        detail: {x: this.x_mixin, y: this.y_mixin},
+      });
       this.$refs.canvasElement.removeEventListener('mousemove', this.handleMousemove);
       this.$refs.canvasElement.removeEventListener('mouseup', this.handleMouseup);
     },
     handleTouchStart(event) {
       if (event.touches.length > 1) return;
       const touch = event.touches[0];
-      this.x = touch.clientX;
-      this.y = touch.clientY;
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
       const target = touch.target;
 
       this.$emit('panstart', {
-            detail: {x: this.x, y: this.y, target},
-          });
+        detail: {x: this.x_mixin, y: this.y_mixin, target},
+      });
 
       this.$refs.canvasElement.addEventListener('touchmove', this.handleTouchmove, {passive: false});
       this.$refs.canvasElement.addEventListener('touchend', this.handleTouchend);
@@ -76,23 +86,23 @@ export default {
       event.preventDefault();
       if (event.touches.length > 1) return;
       const touch = event.touches[0];
-      const dx = touch.clientX - this.x;
-      const dy = touch.clientY - this.y;
-      this.x = touch.clientX;
-      this.y = touch.clientY;
+      const dx = touch.clientX - this.x_mixin;
+      const dy = touch.clientY - this.y_mixin;
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
 
       this.$emit('panmove', {
-            detail: {x: this.x, y: this.y, dx, dy},
-          });
+        detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
+      });
     },
     handleTouchend(event) {
       const touch = event.changedTouches[0];
-      this.x = touch.clientX;
-      this.y = touch.clientY;
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
 
       this.$emit('panend', {
-            detail: {x: this.x, y: this.y},
-          });
+        detail: {x: this.x_mixin, y: this.y_mixin},
+      });
       this.$refs.canvasElement.removeEventListener('touchmove', this.handleTouchmove);
       this.$refs.canvasElement.removeEventListener('touchend', this.handleTouchend);
     }

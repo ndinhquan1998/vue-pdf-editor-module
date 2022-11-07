@@ -207,7 +207,7 @@ export default {
   },
   async mounted() {
     try {
-      const res = await fetch("/UnityGraphicsProgramming-vol1.pdf");
+      const res = await fetch(this.DEBUG_LINK);
       const pdfBlob = await res.blob();
       await this.addPDF(pdfBlob);
       this.selectedPageIndex = 0;
