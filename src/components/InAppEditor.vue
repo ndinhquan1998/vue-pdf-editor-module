@@ -94,52 +94,52 @@
               <PDFPage
                   @onMeasure="onMeasure($event, pIndex)"
                   :page="page"/>
-              <!--              <div-->
-              <!--                  class="absolute top-0 left-0 transform origin-top-left noTouchAction"-->
-              <!--                  :style="{transform: `scale(${pagesScale[pIndex]})`}"-->
-              <!--              >-->
-              <!--                <div v-for="(object, oIndex) in allObjects[pIndex]" :key="oIndex">-->
-              <!--                  <div>-->
-              <!--                    <div v-if="object.type === 'image'">-->
-              <!--                      <Image-->
-              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
-              <!--                          @onDelete="() => deleteObject(object.id)"-->
-              <!--                          :file="object.file"-->
-              <!--                          :payload="object.payload"-->
-              <!--                          :x="object.x"-->
-              <!--                          :y="object.y"-->
-              <!--                          :width="object.width"-->
-              <!--                          :height="object.height"-->
-              <!--                          :pageScale="pagesScale[pIndex]"/>-->
-              <!--                    </div>-->
-              <!--                    <div v-else-if="object.type === 'text'">-->
-              <!--                      <Text-->
-              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
-              <!--                          @onDelete="() => deleteObject(object.id)"-->
-              <!--                          @onSelectFont={selectFontFamily}-->
-              <!--                          :text="object.text"-->
-              <!--                          :x="object.x"-->
-              <!--                          :y="object.y"-->
-              <!--                          :size="object.size"-->
-              <!--                          :lineHeight="object.lineHeight"-->
-              <!--                          :fontFamily="object.fontFamily"-->
-              <!--                          :pageScale="pagesScale[pIndex]"/>-->
-              <!--                    </div>-->
-              <!--                    <div v-else-if="object.type === 'drawing'">-->
-              <!--                      <Drawing-->
-              <!--                          @onUpdate="e => updateObject(object.id, e)"-->
-              <!--                          @onDelete="() => deleteObject(object.id)"-->
-              <!--                          :path="object.path"-->
-              <!--                          :x="object.x"-->
-              <!--                          :y="object.y"-->
-              <!--                          :width="object.width"-->
-              <!--                          :originWidth="object.originWidth"-->
-              <!--                          :originHeight="object.originHeight"-->
-              <!--                          :pageScale="pagesScale[pIndex]"/>-->
-              <!--                    </div>-->
-              <!--                  </div>-->
-              <!--                </div>-->
-              <!--              </div>-->
+              <div
+                  class="absolute top-0 left-0 transform origin-top-left noTouchAction"
+                  :style="{transform: `scale(${pagesScale[pIndex]})`}"
+              >
+                <div v-for="(object, oIndex) in allObjects[pIndex]" :key="oIndex">
+                  <div>
+                    <div v-if="object.type === 'image'">
+                      <ImageItem
+                          @onUpdate="updateObject(object.id, $event)"
+                          @onDelete="deleteObject(object.id)"
+                          :file="object.file"
+                          :payload="object.payload"
+                          :x="object.x"
+                          :y="object.y"
+                          :width="object.width"
+                          :height="object.height"
+                          :pageScale="pagesScale[pIndex]"/>
+                    </div>
+                    <div v-else-if="object.type === 'text'">
+                      <TextItem
+                          @onUpdate="updateObject(object.id, $event)"
+                          @onDelete="deleteObject(object.id)"
+                          @onSelectFont={selectFontFamily}
+                          :text="object.text"
+                          :x="object.x"
+                          :y="object.y"
+                          :size="object.size"
+                          :lineHeight="object.lineHeight"
+                          :fontFamily="object.fontFamily"
+                          :pageScale="pagesScale[pIndex]"/>
+                    </div>
+                    <div v-else-if="object.type === 'drawing'">
+                      <Drawing
+                          @onUpdate="updateObject(object.id, $event)"
+                          @onDelete="deleteObject(object.id)"
+                          :path="object.path"
+                          :x="object.x"
+                          :y="object.y"
+                          :width="object.width"
+                          :originWidth="object.originWidth"
+                          :originHeight="object.originHeight"
+                          :pageScale="pagesScale[pIndex]"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -159,14 +159,14 @@ import "pdfjs-dist/web/pdf_viewer.css";
 const PDFJS = require("pdfjs-dist");
 PDFJS.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
 
-import * as PDFLib from 'pdf-lib';
+// import * as PDFLib from 'pdf-lib';
 
 import {getAsset} from "@/utils/prepareAssets";
-// import Tailwind from "./Tailwind.svelte";
+
 import PDFPage from "@/components/PDFPage";
-// import Image from "@/components/Image";
-// import Text from "@/components/Text";
-// import Drawing from "@/components/Drawing";
+import ImageItem from "@/components/Image";
+// import TextItem from "@/components/Text";
+import Drawing from "@/components/Drawing";
 import DrawingCanvas from "@/components/DrawingCanvas";
 import {fetchFont} from "@/utils/prepareAssets.js";
 import {
@@ -182,9 +182,9 @@ export default {
   name: 'InAppEditor',
   components: {
     PDFPage,
-    // Image,
-    // Text,
-    // Drawing,
+    ImageItem,
+    // TextItem,
+    Drawing,
     DrawingCanvas
   },
   props: {
@@ -194,6 +194,8 @@ export default {
     return {
       pdfFile: null,
       pdfName: "",
+      numPages: null,
+      pdfDocument: null,
       pages: [],
       pagesScale: [],
       allObjects: [],
@@ -202,7 +204,7 @@ export default {
       selectedPageIndex: -1,
       saving: false,
       addingDrawing: false,
-      DEBUG_LINK:"https://raw.githubusercontent.com/pdf-association/pdf20examples/master/pdf20-utf8-test.pdf"
+      DEBUG_LINK: "https://raw.githubusercontent.com/pdf-association/pdf20examples/master/pdf20-utf8-test.pdf"
     }
   },
   async mounted() {
@@ -219,9 +221,7 @@ export default {
       console.log(e);
     }
   },
-  async created() {
-    const pdfDoc = await PDFLib.PDFDocument.create();
-    console.log("-> pdfDoc", pdfDoc);
+  created() {
   },
   watch: {},
   methods: {
@@ -256,17 +256,42 @@ export default {
         console.log(e);
       }
     },
+    resetDefaultState() {
+      this.pdfFile = null;
+      this.pdfName = "";
+      this.numPages = null;
+      this.pdfDocument = null;
+      this.pages = [];
+      this.pagesScale = [];
+      this.allObjects = [];
+    },
+    async getPdfDocument(file) {
+      const blob = new Blob([file]);
+      const url = window.URL.createObjectURL(blob);
+      return PDFJS.getDocument(url).promise;
+    },
     async addPDF(file) {
       try {
-        const pdf = await readAsPDF(file);
-        this.pdfName = file.name;
+        this.resetDefaultState();
+
         this.pdfFile = file;
-        const numPages = pdf.numPages;
-        this.pages = Array(numPages)
-            .fill()
-            .map((_, i) => pdf.getPage(i + 1));
-        this.allObjects = this.pages.map(() => []);
-        this.pagesScale = Array(numPages).fill(1);
+        this.pdfName = file.name;
+
+        this.pdfDocument = await readAsPDF(file);
+        if (this.pdfDocument) {
+          this.numPages = this.pdfDocument.numPages;
+          this.pages = Array(this.numPages)
+              .fill()
+              .map((_, i) => this.pdfDocument.getPage(i + 1));
+          this.allObjects = this.pages.map(() => []);
+          this.pagesScale = Array(this.numPages).fill(1);
+        }
+        // const numPages = pdf.numPages;
+        // this.pages = Array(numPages)
+        //     .fill()
+        //     .map((_, i) => pdf.getPage(i + 1));
+        // this.allObjects = this.pages.map(() => []);
+        // this.pagesScale = Array(numPages).fill(1);
       } catch (e) {
         console.log("Failed to add pdf.");
         throw e;

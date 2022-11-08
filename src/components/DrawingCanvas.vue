@@ -1,23 +1,23 @@
 <template>
   <div class="relative w-full h-full">
-    <canvas-area
+    <div
         id="canvas-container"
-        @panstart="handlePanStart"
-        @panmove="handlePanMove"
-        @panend="handlePanEnd"
-        :path="path"
+        ref="canvasElement"
+        @mousedown="handlePanStart(handleMousedown($event))"
+        @mousemove="handlePanMove(handleMousemove($event))"
+        @mouseup="handlePanEnd(handleMouseup($event))"
         class="relative w-full h-full select-none"
     >
-    </canvas-area>
-    <!--      <svg class="relative w-full h-full pointer-events-none">-->
-    <!--        <path-->
-    <!--            stroke-width="5"-->
-    <!--            stroke-linejoin="round"-->
-    <!--            stroke-linecap="round"-->
-    <!--            :d="path"-->
-    <!--            stroke="black"-->
-    <!--            fill="none"/>-->
-    <!--      </svg>-->
+      <svg class="relative w-full h-full pointer-events-none">
+        <path
+            stroke-width="5"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            :d="path"
+            stroke="black"
+            fill="none"/>
+      </svg>
+    </div>
     <div class="absolute right-0 bottom-0 mr-4 mb-4 flex">
       <button
           @click="onClose"
@@ -35,12 +35,12 @@
   </div>
 </template>
 <script>
-import canvasArea from "@/components/CanvasArea";
+import itemEventsMixin from "@/components/ItemEventsMixin";
 
 export default {
   name: "DrawingCanvasComponent",
-  components: {canvasArea},
-  mixins: [],
+  // components: {itemEventsMixin},
+  mixins: [itemEventsMixin],
   props: [],
   data() {
     return {
@@ -80,7 +80,6 @@ export default {
       if (!this.drawing) {
         return;
       }
-      console.log("-> handlePanMove", event);
       this.x = event.detail.x;
       this.y = event.detail.y;
       this.minX = Math.min(this.minX, this.x);
@@ -89,10 +88,8 @@ export default {
       this.maxY = Math.max(this.maxY, this.y);
       this.paths.push(["L", this.x, this.y]);
       this.path += `L${this.x},${this.y}`;
-      console.log("-> this.path", this.path);
     },
     handlePanEnd() {
-      console.log("-> this.path", this.path);
       this.drawing = false;
     },
     onFinish() {
