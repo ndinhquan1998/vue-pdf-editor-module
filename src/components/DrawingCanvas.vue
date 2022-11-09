@@ -2,10 +2,12 @@
   <div class="relative w-full h-full">
     <div
         id="canvas-container"
-        ref="canvasElement"
-        @mousedown="handlePanStart(handleMousedown($event))"
-        @mousemove="handlePanMove(handleMousemove($event))"
-        @mouseup="handlePanEnd(handleMouseup($event))"
+        @mousedown="handlePanStart"
+        @mousemove="handlePanMove"
+        @mouseup="handlePanEnd"
+        @touchstart="handlePanStart"
+        @touchmove="handlePanMove"
+        @touchend="handlePanEnd"
         class="relative w-full h-full select-none"
     >
       <svg class="relative w-full h-full pointer-events-none">
@@ -62,13 +64,22 @@ export default {
   },
   methods: {
     handlePanStart(event) {
+      let coordinate;
+      if (event.type === 'mousedown') {
+        coordinate = this.handleMousedown(event)
+      }
+      if (event.type === 'touchstart') {
+        coordinate = this.handleTouchStart(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
       let canvas = document.getElementById("canvas-container");
-      if (event.detail.target !== canvas) {
+      if (coordinate.detail.target !== canvas) {
         return (this.drawing = false);
       }
       this.drawing = true;
-      this.x = event.detail.x;
-      this.y = event.detail.y;
+      this.x = coordinate.detail.x;
+      this.y = coordinate.detail.y;
       this.minX = Math.min(this.minX, this.x);
       this.maxX = Math.max(this.maxX, this.x);
       this.minY = Math.min(this.minY, this.y);
@@ -80,8 +91,17 @@ export default {
       if (!this.drawing) {
         return;
       }
-      this.x = event.detail.x;
-      this.y = event.detail.y;
+      let coordinate;
+      if (event.type === 'mousemove') {
+        coordinate = this.handleMousemove(event)
+      }
+      if (event.type === 'touchmove') {
+        coordinate = this.handleTouchmove(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
+      this.x = coordinate.detail.x;
+      this.y = coordinate.detail.y;
       this.minX = Math.min(this.minX, this.x);
       this.maxX = Math.max(this.maxX, this.x);
       this.minY = Math.min(this.minY, this.y);
@@ -89,7 +109,16 @@ export default {
       this.paths.push(["L", this.x, this.y]);
       this.path += `L${this.x},${this.y}`;
     },
-    handlePanEnd() {
+    handlePanEnd(event) {
+      let coordinate;
+      if (event.type === 'mouseup') {
+        coordinate = this.handleMouseup(event)
+      }
+      if (event.type === 'touchend') {
+        coordinate = this.handleTouchend(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
       this.drawing = false;
     },
     onFinish() {

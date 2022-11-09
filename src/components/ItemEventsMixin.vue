@@ -42,17 +42,11 @@ export default {
       this.x_mixin = event.clientX;
       this.y_mixin = event.clientY;
       const target = event.target;
-
+      window.addEventListener('mousemove', this.handlePanMove, false);
+      window.addEventListener('mouseup', this.handlePanEnd, false);
       return {
         detail: {x: this.x_mixin, y: this.y_mixin, target},
       }
-
-      // this.$emit('panstart', {
-      //   detail: {x: this.x_mixin, y: this.y_mixin, target},
-      // });
-
-      // this.$refs.canvasElement.addEventListener('mousemove', this.handleMousemove);
-      // this.$refs.canvasElement.addEventListener('mouseup', this.handleMouseup);
     },
 
     handleMousemove(event) {
@@ -64,62 +58,53 @@ export default {
       return {
         detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
       }
-      // this.$emit('panmove', {
-      //   detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
-      // });
     },
 
     handleMouseup(event) {
       this.x_mixin = event.clientX;
       this.y_mixin = event.clientY;
-
+      window.removeEventListener('mousemove', this.handlePanMove);
+      window.removeEventListener('mouseup', this.handlePanEnd);
       return {
         detail: {x: this.x_mixin, y: this.y_mixin},
       }
-      // this.$emit('panend', {
-      //   detail: {x: this.x_mixin, y: this.y_mixin},
-      // });
-      // this.$refs.canvasElement.removeEventListener('mousemove', this.handleMousemove);
-      // this.$refs.canvasElement.removeEventListener('mouseup', this.handleMouseup);
     },
-    // handleTouchStart(event) {
-    //   if (event.touches.length > 1) return;
-    //   const touch = event.touches[0];
-    //   this.x_mixin = touch.clientX;
-    //   this.y_mixin = touch.clientY;
-    //   const target = touch.target;
-    //
-    //   this.$emit('panstart', {
-    //     detail: {x: this.x_mixin, y: this.y_mixin, target},
-    //   });
-    //
-    //   this.$refs.canvasElement.addEventListener('touchmove', this.handleTouchmove, {passive: false});
-    //   this.$refs.canvasElement.addEventListener('touchend', this.handleTouchend);
-    // },
-    // handleTouchmove(event) {
-    //   event.preventDefault();
-    //   if (event.touches.length > 1) return;
-    //   const touch = event.touches[0];
-    //   const dx = touch.clientX - this.x_mixin;
-    //   const dy = touch.clientY - this.y_mixin;
-    //   this.x_mixin = touch.clientX;
-    //   this.y_mixin = touch.clientY;
-    //
-    //   this.$emit('panmove', {
-    //     detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
-    //   });
-    // },
-    // handleTouchend(event) {
-    //   const touch = event.changedTouches[0];
-    //   this.x_mixin = touch.clientX;
-    //   this.y_mixin = touch.clientY;
-    //
-    //   this.$emit('panend', {
-    //     detail: {x: this.x_mixin, y: this.y_mixin},
-    //   });
-    //   this.$refs.canvasElement.removeEventListener('touchmove', this.handleTouchmove);
-    //   this.$refs.canvasElement.removeEventListener('touchend', this.handleTouchend);
-    // }
+    handleTouchStart(event) {
+      if (event.touches.length > 1) return;
+      const touch = event.touches[0];
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
+      const target = touch.target;
+
+      window.addEventListener('touchmove', this.handlePanMove, {passive: false});
+      window.addEventListener('touchend', this.handlePanEnd);
+      return {
+        detail: {x: this.x_mixin, y: this.y_mixin, target},
+      };
+    },
+    handleTouchmove(event) {
+      if (event.touches.length > 1) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - this.x_mixin;
+      const dy = touch.clientY - this.y_mixin;
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
+
+      return {
+        detail: {x: this.x_mixin, y: this.y_mixin, dx, dy},
+      }
+    },
+    handleTouchend(event) {
+      const touch = event.changedTouches[0];
+      this.x_mixin = touch.clientX;
+      this.y_mixin = touch.clientY;
+
+      window.removeEventListener('touchmove', this.handlePanMove);
+      window.removeEventListener('touchend', this.handlePanEnd);
+      return {
+        detail: {x: this.x_mixin, y: this.y_mixin},
+      };
+    }
   }
 }
 </script>

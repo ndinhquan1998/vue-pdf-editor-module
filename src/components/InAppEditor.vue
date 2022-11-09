@@ -73,7 +73,7 @@
             @onCancel="onCancelDrawingCanvas"/>
       </div>
     </div>
-    <div v-if="pages.length">
+    <div v-if="pages.length" class="w-full">
       <div class="flex justify-center px-5 w-full md:hidden">
         <img src="/edit.svg" class="mr-2" alt="a pen, edit pdf name"/>
         <input
@@ -90,7 +90,7 @@
               @touchstart="selectPage(pIndex)">
             <div
                 class="relative shadow-lg"
-                :class="[pIndex === selectedPageIndex ?'shadow-outline':'']">
+                :class="[pIndex === selectedPageIndex ?'shadowOutline':'']">
               <PDFPage
                   @onMeasure="onMeasure($event, pIndex)"
                   :page="page"/>
@@ -110,6 +110,8 @@
                           :y="object.y"
                           :width="object.width"
                           :height="object.height"
+                          :originWidth="object.originWidth"
+                          :originHeight="object.originHeight"
                           :pageScale="pagesScale[pIndex]"/>
                     </div>
                     <div v-else-if="object.type === 'text'">
@@ -235,7 +237,6 @@ export default {
       this.onCancelDrawingCanvas();
     },
     onCancelDrawingCanvas() {
-      console.log('CLOSE')
       this.addingDrawing = false;
     },
     genID() {
@@ -316,6 +317,8 @@ export default {
           type: "image",
           width,
           height,
+          originWidth: width,
+          originHeight: height,
           x: 0,
           y: 0,
           payload: img,
@@ -427,6 +430,9 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.shadowOutline {
+  box-shadow: 0 0 0 3px rgb(66 153 225 / 50%);
+}
 
 .noTouchAction {
   touch-action: none

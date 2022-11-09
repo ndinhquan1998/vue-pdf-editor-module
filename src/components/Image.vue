@@ -1,26 +1,32 @@
 <template>
+  <!--  <div-->
+  <!--      class="absolute left-0 top-0 select-none"-->
+  <!--      :style="{width: `${width + dw}px`,height: `${(height + dh)}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}">-->
   <div
       class="absolute left-0 top-0 select-none"
-      :style="{width: `${width + dw}px`,height: `${(height + dh)}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}">
+      :style="{width: `${width + dw}px`,height: `${(width + dw)/ ratio}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}">
     <div
-        @mousedown="handlePanStart(handleMousedown($event),$event)"
-        @mousemove="handlePanMove(handleMousemove($event))"
-        @mouseup="handlePanEnd(handleMouseup($event))"
+        @mousedown="handlePanStart"
+        @mousemove="handlePanMove"
+        @mouseup="handlePanEnd"
+        @touchstart="handlePanStart"
+        @touchmove="handlePanMove"
+        @touchend="handlePanEnd"
         class="absolute w-full h-full cursor-grab"
         :class="[operation === 'move' ? 'cursor-grabbing':'', operation? 'operation':'']"
     >
-      <div
-          data-direction="left"
-          class="absolute border-dashed border-gray-600 h-full w-1 left-0 top-0 border-l cursor-ew-resize"/>
-      <div
-          data-direction="top"
-          class="absolute border-dashed border-gray-600 w-full h-1 left-0 top-0 border-t cursor-ns-resize"/>
-      <div
-          data-direction="bottom"
-          class="absolute border-dashed border-gray-600 w-full h-1 left-0 bottom-0 border-b cursor-ns-resize"/>
-      <div
-          data-direction="right"
-          class="absolute border-dashed border-gray-600 h-full w-1 right-0 top-0 border-r cursor-ew-resize"/>
+      <!--      <div-->
+      <!--          data-direction="left"-->
+      <!--          class="absolute border-dashed border-gray-600 h-full w-1 left-0 top-0 border-l cursor-ew-resize"/>-->
+      <!--      <div-->
+      <!--          data-direction="top"-->
+      <!--          class="absolute border-dashed border-gray-600 w-full h-1 left-0 top-0 border-t cursor-ns-resize"/>-->
+      <!--      <div-->
+      <!--          data-direction="bottom"-->
+      <!--          class="absolute border-dashed border-gray-600 w-full h-1 left-0 bottom-0 border-b cursor-ns-resize"/>-->
+      <!--      <div-->
+      <!--          data-direction="right"-->
+      <!--          class="absolute border-dashed border-gray-600 h-full w-1 right-0 top-0 border-r cursor-ew-resize"/>-->
       <div
           data-direction="left-top"
           class="absolute w-10 h-10 bg-blue-300 rounded-full left-0 top-0 cursor-nwse-resize transform
@@ -54,7 +60,7 @@ import itemEventsMixin from "@/components/ItemEventsMixin";
 export default {
   name: "ImageComponent",
   mixins: [itemEventsMixin],
-  props: ['payload', 'file', 'width', 'height', 'x', 'y', 'pageScale'],
+  props: ['payload', 'file', 'width', 'height', 'originWidth', 'originHeight', 'x', 'y', 'pageScale'],
   data() {
     return {
       startX: null,
@@ -68,19 +74,23 @@ export default {
       dh: 0,
     }
   },
+  computed: {
+    ratio() {
+      return this.originWidth / this.originHeight
+    }
+  },
   mounted() {
     this.canvas = this.$refs.canvas;
     this.render()
   },
   created() {
   },
+  watch: {},
   methods: {
     async render() {
       // use canvas to prevent img tag's auto resize
       this.canvas.width = this.width;
       this.canvas.height = this.height;
-      console.log("-> this.payload", this.payload);
-      console.log("-> this.file", this.file);
       this.canvas.getContext("2d").drawImage(this.payload, 0, 0);
       let scale = 1;
       const limit = 500;
@@ -102,9 +112,18 @@ export default {
         });
       }
     },
-    handlePanMove(cor) {
-      const _dx = (cor.detail.x - this.startX) / this.pageScale;
-      const _dy = (cor.detail.y - this.startY) / this.pageScale;
+    handlePanMove(event) {
+      let coordinate;
+      if (event.type === 'mousemove') {
+        coordinate = this.handleMousemove(event)
+      }
+      if (event.type === 'touchmove') {
+        coordinate = this.handleTouchmove(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
+      const _dx = (coordinate.detail.x - this.startX) / this.pageScale;
+      const _dy = (coordinate.detail.y - this.startY) / this.pageScale;
       if (this.operation === "move") {
         this.dx = _dx;
         this.dy = _dy;
@@ -126,7 +145,15 @@ export default {
       }
     },
 
-    handlePanEnd() {
+    handlePanEnd(event) {
+      let coordinate;
+      if (event.type === 'mouseup') {
+        coordinate = this.handleMouseup(event)
+      }
+      if (event.type === 'touchend') {
+        coordinate = this.handleTouchend(event)
+      }
+      if (!coordinate) return console.log('ERROR');
       if (this.operation === "move") {
         this.$emit("onUpdate", {
           x: this.x + this.dx,
@@ -149,14 +176,23 @@ export default {
       }
       this.operation = "";
     },
-    handlePanStart(cor,event) {
-      this.startX = cor.detail.x;
-      this.startY = cor.detail.y;
-      if (cor.detail.target === event.currentTarget) {
+    handlePanStart(event) {
+      let coordinate;
+      if (event.type === 'mousedown') {
+        coordinate = this.handleMousedown(event)
+      }
+      if (event.type === 'touchstart') {
+        coordinate = this.handleTouchStart(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
+      this.startX = coordinate.detail.x;
+      this.startY = coordinate.detail.y;
+      if (coordinate.detail.target === event.currentTarget) {
         return (this.operation = "move");
       }
       this.operation = "scale";
-      this.directions = cor.detail.target.dataset.direction.split("-");
+      this.directions = coordinate.detail.target.dataset.direction.split("-");
     },
     onDelete() {
       this.$emit("onDelete");

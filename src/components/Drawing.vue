@@ -4,9 +4,12 @@
       :style="{width: `${width + dw}px`,height: `${(width + dw)/ ratio}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}"
   >
     <div
-        @mousedown="handlePanStart(handleMousedown($event),$event)"
-        @mousemove="handlePanMove(handleMousemove($event))"
-        @mouseup="handlePanEnd(handleMouseup($event))"
+        @mousedown="handlePanStart"
+        @mousemove="handlePanMove"
+        @mouseup="handlePanEnd"
+        @touchstart="handlePanStart"
+        @touchmove="handlePanMove"
+        @touchend="handlePanEnd"
         class="absolute w-full h-full cursor-grab border border-gray-400
     border-dashed"
         :class="[operation === 'move' ? 'cursor-grabbing':'',operation? 'operation':'']"
@@ -73,9 +76,18 @@ export default {
     async render() {
       this.$refs.svg.setAttribute("viewBox", `0 0 ${this.originWidth} ${this.originHeight}`);
     },
-    handlePanMove(cor) {
-      const _dx = (cor.detail.x - this.startX) / this.pageScale;
-      const _dy = (cor.detail.y - this.startY) / this.pageScale;
+    handlePanMove(event) {
+      let coordinate;
+      if (event.type === 'mousemove') {
+        coordinate = this.handleMousemove(event)
+      }
+      if (event.type === 'touchmove') {
+        coordinate = this.handleTouchmove(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
+      const _dx = (coordinate.detail.x - this.startX) / this.pageScale;
+      const _dy = (coordinate.detail.y - this.startY) / this.pageScale;
       if (this.operation === "move") {
         this.dx = _dx;
         this.dy = _dy;
@@ -95,7 +107,16 @@ export default {
       }
     },
 
-    handlePanEnd() {
+    handlePanEnd(event) {
+      let coordinate;
+      if (event.type === 'mouseup') {
+        coordinate = this.handleMouseup(event)
+      }
+      if (event.type === 'touchend') {
+        coordinate = this.handleTouchend(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
       if (this.operation === "move") {
         this.$emit("onUpdate", {
           x: this.x + this.dx,
@@ -117,14 +138,23 @@ export default {
       }
       this.operation = "";
     },
-    handlePanStart(cor, event) {
-      this.startX = cor.detail.x;
-      this.startY = cor.detail.y;
-      if (cor.detail.target === event.currentTarget) {
+    handlePanStart(event) {
+      let coordinate;
+      if (event.type === 'mousedown') {
+        coordinate = this.handleMousedown(event)
+      }
+      if (event.type === 'touchstart') {
+        coordinate = this.handleTouchStart(event)
+      }
+      if (!coordinate) return console.log('ERROR');
+
+      this.startX = coordinate.detail.x;
+      this.startY = coordinate.detail.y;
+      if (coordinate.detail.target === event.currentTarget) {
         return (this.operation = "move");
       }
       this.operation = "scale";
-      this.direction = cor.detail.target.dataset.direction;
+      this.direction = coordinate.detail.target.dataset.direction;
     },
     onDelete() {
       this.$emit("onDelete");
