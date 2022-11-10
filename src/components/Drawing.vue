@@ -5,11 +5,7 @@
   >
     <div
         @mousedown="handlePanStart"
-        @mousemove="handlePanMove"
-        @mouseup="handlePanEnd"
         @touchstart="handlePanStart"
-        @touchmove="handlePanMove"
-        @touchend="handlePanEnd"
         class="absolute w-full h-full cursor-grab border border-gray-400
     border-dashed"
         :class="[operation === 'move' ? 'cursor-grabbing':'',operation? 'operation':'']"

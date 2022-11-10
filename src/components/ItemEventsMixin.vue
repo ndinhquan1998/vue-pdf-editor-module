@@ -1,26 +1,6 @@
-<!--<template>-->
-<!--  <div-->
-<!--      ref="canvasElement"-->
-<!--      @mousedown="handleMousedown"-->
-<!--      @mousemove="handleMousemove"-->
-<!--      @mouseup="handleMouseup"-->
-<!--  >-->
-<!--    <svg class="relative w-full h-full pointer-events-none">-->
-<!--      <path-->
-<!--          stroke-width="5"-->
-<!--          stroke-linejoin="round"-->
-<!--          stroke-linecap="round"-->
-<!--          :d="path"-->
-<!--          stroke="black"-->
-<!--          fill="none"/>-->
-<!--    </svg>-->
-<!--  </div>-->
-<!--</template>-->
-
 <script>
 export default {
   name: "PannableAreaMixin",
-  // props: ['path'],
   data() {
     return {
       x_mixin: null,
@@ -42,8 +22,8 @@ export default {
       this.x_mixin = event.clientX;
       this.y_mixin = event.clientY;
       const target = event.target;
-      window.addEventListener('mousemove', this.handlePanMove, false);
-      window.addEventListener('mouseup', this.handlePanEnd, false);
+      window.addEventListener('mousemove', this.handlePanMove);
+      window.addEventListener('mouseup', this.handlePanEnd);
       return {
         detail: {x: this.x_mixin, y: this.y_mixin, target},
       }

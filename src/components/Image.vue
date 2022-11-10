@@ -7,11 +7,7 @@
       :style="{width: `${width + dw}px`,height: `${(width + dw)/ ratio}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}">
     <div
         @mousedown="handlePanStart"
-        @mousemove="handlePanMove"
-        @mouseup="handlePanEnd"
         @touchstart="handlePanStart"
-        @touchmove="handlePanMove"
-        @touchend="handlePanEnd"
         class="absolute w-full h-full cursor-grab"
         :class="[operation === 'move' ? 'cursor-grabbing':'', operation? 'operation':'']"
     >

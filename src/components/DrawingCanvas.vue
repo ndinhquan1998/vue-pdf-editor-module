@@ -3,11 +3,7 @@
     <div
         id="canvas-container"
         @mousedown="handlePanStart"
-        @mousemove="handlePanMove"
-        @mouseup="handlePanEnd"
         @touchstart="handlePanStart"
-        @touchmove="handlePanMove"
-        @touchend="handlePanEnd"
         class="relative w-full h-full select-none"
     >
       <svg class="relative w-full h-full pointer-events-none">
