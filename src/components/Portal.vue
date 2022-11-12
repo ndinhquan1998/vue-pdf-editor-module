@@ -13,7 +13,7 @@ export default {
       // portal: null,
     }
   },
-  created() {
+  mounted() {
     this.$refs.portal && document.body.appendChild(this.$refs.portal)
   }
 }

@@ -118,7 +118,7 @@
                       <TextItem
                           @onUpdate="updateObject(object.id, $event)"
                           @onDelete="deleteObject(object.id)"
-                          @onSelectFont={selectFontFamily}
+                          @onSelectFont="selectFontFamily"
                           :text="object.text"
                           :x="object.x"
                           :y="object.y"
@@ -167,7 +167,7 @@ import {getAsset} from "@/utils/prepareAssets";
 
 import PDFPage from "@/components/PDFPage";
 import ImageItem from "@/components/Image";
-// import TextItem from "@/components/Text";
+import TextItem from "@/components/TextItem";
 import Drawing from "@/components/Drawing";
 import DrawingCanvas from "@/components/DrawingCanvas";
 import {fetchFont} from "@/utils/prepareAssets.js";
@@ -185,7 +185,7 @@ export default {
   components: {
     PDFPage,
     ImageItem,
-    // TextItem,
+    TextItem,
     Drawing,
     DrawingCanvas
   },
@@ -391,6 +391,8 @@ export default {
     },
 
     updateObject(objectId, payload) {
+      console.log("-> payload", payload);
+      console.log("-> this.allObjects", this.allObjects);
       this.allObjects = this.allObjects.map((objects, pIndex) =>
           pIndex === this.selectedPageIndex
               ? objects.map(object =>
@@ -398,6 +400,7 @@ export default {
               )
               : objects
       );
+      console.log("-> this.allObjects", this.allObjects);
     },
 
     deleteObject(objectId) {
