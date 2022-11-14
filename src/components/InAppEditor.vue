@@ -159,11 +159,7 @@
 import "pdfjs-dist/web/pdf_viewer.css";
 
 const PDFJS = require("pdfjs-dist");
-PDFJS.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
-
-// import * as PDFLib from 'pdf-lib';
-
-import {getAsset} from "@/utils/prepareAssets";
+PDFJS.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker.entry.js");
 
 import PDFPage from "@/components/PDFPage";
 import ImageItem from "@/components/Image";
@@ -173,12 +169,10 @@ import DrawingCanvas from "@/components/DrawingCanvas";
 import {fetchFont} from "@/utils/prepareAssets.js";
 import {
   readAsImage,
-  readAsPDF,
+  // readAsPDF,
   readAsDataURL
 } from "@/utils/asyncReader.js";
 import {save} from "@/utils/PDF.js";
-
-getAsset('makeTextPDF');
 
 export default {
   name: 'InAppEditor',
@@ -210,23 +204,27 @@ export default {
     }
   },
   async mounted() {
-    try {
-      const res = await fetch(this.DEBUG_LINK);
-      const pdfBlob = await res.blob();
-      await this.addPDF(pdfBlob);
-      this.selectedPageIndex = 0;
-      setTimeout(() => {
-        fetchFont(this.currentFont);
-        // prepareAssets();
-      }, 5000);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.init('/sample_color.pdf');
   },
   created() {
   },
   watch: {},
   methods: {
+    async init(input) {
+      try {
+        const res = await fetch(input);
+        const pdfBlob = await res.blob();
+        await this.addPDF(pdfBlob);
+        this.selectedPageIndex = 0;
+        setTimeout(() => {
+          fetchFont(this.currentFont);
+          // prepareAssets();
+        }, 5000);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+
     onFinishDrawingCanvas(e) {
       const {originWidth, originHeight, path} = e;
       let scale = 1;
@@ -271,6 +269,7 @@ export default {
       const url = window.URL.createObjectURL(blob);
       return PDFJS.getDocument(url).promise;
     },
+
     async addPDF(file) {
       try {
         this.resetDefaultState();
@@ -278,7 +277,7 @@ export default {
         this.pdfFile = file;
         this.pdfName = file.name;
 
-        this.pdfDocument = await readAsPDF(file);
+        this.pdfDocument = await this.getPdfDocument(file);
         if (this.pdfDocument) {
           this.numPages = this.pdfDocument.numPages;
           this.pages = Array(this.numPages)
