@@ -267,8 +267,7 @@ export default {
         this.$refs.editable.removeChild(weirdNode);
       }
     },
-    onChangeFont(event) {
-      console.log("-> event", event);
+    onChangeFont() {
       this.$emit("onSelectFont", {
         name: this.fontFamily_
       });

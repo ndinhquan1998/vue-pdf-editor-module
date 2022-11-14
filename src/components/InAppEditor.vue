@@ -391,8 +391,6 @@ export default {
     },
 
     updateObject(objectId, payload) {
-      console.log("-> payload", payload);
-      console.log("-> this.allObjects", this.allObjects);
       this.allObjects = this.allObjects.map((objects, pIndex) =>
           pIndex === this.selectedPageIndex
               ? objects.map(object =>
