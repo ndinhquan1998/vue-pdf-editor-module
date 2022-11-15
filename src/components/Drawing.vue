@@ -12,17 +12,17 @@
     >
       <div
           data-direction="left-top"
-          class="absolute left-0 top-0 w-10 h-10 bg-green-400 rounded-full
-      cursor-nwse-resize transform -translate-x-1/2 -translate-y-1/2 md:scale-25"/>
+          class="absolute cursor-nwse-resize transform selector"
+          :style="{ top: '0%', left: '0%' }"/>
       <div
           data-direction="right-bottom"
-          class="absolute right-0 bottom-0 w-10 h-10 bg-green-400 rounded-full
-      cursor-nwse-resize transform translate-x-1/2 translate-y-1/2 md:scale-25"/>
+          class="absolute cursor-nwse-resize transform selector"
+          :style="{ top: '100%', left: '100%' }"/>
     </div>
     <div
         @click="onDelete"
-        class="absolute left-0 top-0 right-0 w-12 h-12 m-auto rounded-full bg-white
-    cursor-pointer transform -translate-y-1/2 md:scale-25">
+        class="absolute cursor-pointer transform delete"
+        :style="{ top: '0%', left: '50%' }">
       <img class="w-full h-full" src="/delete.svg" alt="delete object"/>
     </div>
     <svg ref="svg" width="100%" height="100%">
@@ -162,5 +162,24 @@ export default {
 <style scoped>
 .operation {
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.selector {
+  border-radius: 10px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
+  background-color: #32b5fe;
+  border: 1px solid #32b5fe;
+}
+
+.delete {
+  border-radius: 10px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  margin-top: -9px;
+  background-color: #ffffff;
 }
 </style>
