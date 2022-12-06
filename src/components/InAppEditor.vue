@@ -29,7 +29,7 @@
         cursor-pointer"
             for="image"
             :class="[selectedPageIndex < 0 ?'cursor-not-allowed bg-gray-500':'']">
-          <img src="image.svg" alt="An icon for adding images"/>
+          <img src="/image.svg" alt="An icon for adding images"/>
         </label>
         <label
             class="flex items-center justify-center h-full w-8 hover:bg-gray-500
@@ -37,14 +37,14 @@
             for="text"
             :class="[selectedPageIndex < 0 ?'cursor-not-allowed bg-gray-500':'']"
             @click="onAddTextField">
-          <img src="notes.svg" alt="An icon for adding text"/>
+          <img src="/notes.svg" alt="An icon for adding text"/>
         </label>
         <label
             class="flex items-center justify-center h-full w-8 hover:bg-gray-500
         cursor-pointer"
             @click="onAddDrawing"
             :class="[selectedPageIndex < 0 ?'cursor-not-allowed bg-gray-500':'']">
-          <img src="gesture.svg" alt="An icon for adding drawing"/>
+          <img src="/gesture.svg" alt="An icon for adding drawing"/>
         </label>
       </div>
       <div class="justify-center mr-3 md:mr-4 w-full max-w-xs hidden md:flex">
@@ -92,6 +92,8 @@
                 class="relative shadow-lg"
                 :class="[pIndex === selectedPageIndex ?'shadowOutline':'']">
               <PDFPage
+                  :ref="`page${pIndex}`"
+                  :data-key="pIndex"
                   @onMeasure="onMeasure($event, pIndex)"
                   :page="page"/>
               <div
@@ -210,23 +212,27 @@ export default {
     }
   },
   async mounted() {
-    try {
-      const res = await fetch(this.DEBUG_LINK);
-      const pdfBlob = await res.blob();
-      await this.addPDF(pdfBlob);
-      this.selectedPageIndex = 0;
-      setTimeout(() => {
-        fetchFont(this.currentFont);
-        // prepareAssets();
-      }, 5000);
-    } catch (e) {
-      console.log(e);
-    }
+    await this.init();
   },
   created() {
   },
   watch: {},
   methods: {
+    async init() {
+      try {
+        const res = await fetch(this.DEBUG_LINK);
+        const pdfBlob = await res.blob();
+        await this.addPDF(pdfBlob);
+        this.selectedPageIndex = 0;
+        setTimeout(() => {
+          fetchFont(this.currentFont);
+          // prepareAssets();
+        }, 5000);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+
     onFinishDrawingCanvas(e) {
       const {originWidth, originHeight, path} = e;
       let scale = 1;
@@ -287,12 +293,6 @@ export default {
           this.allObjects = this.pages.map(() => []);
           this.pagesScale = Array(this.numPages).fill(1);
         }
-        // const numPages = pdf.numPages;
-        // this.pages = Array(numPages)
-        //     .fill()
-        //     .map((_, i) => pdf.getPage(i + 1));
-        // this.allObjects = this.pages.map(() => []);
-        // this.pagesScale = Array(numPages).fill(1);
       } catch (e) {
         console.log("Failed to add pdf.");
         throw e;
@@ -312,6 +312,12 @@ export default {
         const img = await readAsImage(url);
         const id = this.genID();
         const {width, height} = img;
+
+        const {canvasWidth, canvasHeight} =
+            this.$refs[
+                `page${this.selectedPageIndex}`
+                ][0].getCanvasMeasurement();
+
         const object = {
           id,
           type: "image",
@@ -319,6 +325,8 @@ export default {
           height,
           originWidth: width,
           originHeight: height,
+          canvasWidth: canvasWidth,
+          canvasHeight: canvasHeight,
           x: 0,
           y: 0,
           payload: img,
@@ -398,7 +406,6 @@ export default {
               )
               : objects
       );
-      console.log("-> this.allObjects", this.allObjects);
     },
 
     deleteObject(objectId) {

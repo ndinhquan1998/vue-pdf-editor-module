@@ -2,9 +2,9 @@
   <div class="relative w-full h-full">
     <div
         id="canvas-container"
+        class="relative w-full h-full select-none"
         @mousedown="handlePanStart"
         @touchstart="handlePanStart"
-        class="relative w-full h-full select-none"
     >
       <svg class="relative w-full h-full pointer-events-none">
         <path
@@ -13,20 +13,40 @@
             stroke-linecap="round"
             :d="path"
             stroke="black"
-            fill="none"/>
+            fill="none"
+        />
       </svg>
     </div>
     <div class="absolute right-0 bottom-0 mr-4 mb-4 flex">
       <button
+          class="
+					w-24
+					bg-red-500
+					hover:bg-red-700
+					text-white
+					font-bold
+					py-1
+					px-4
+					rounded
+					mr-4
+				"
           @click="onClose"
-          class=" w-24 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-4
-      rounded mr-4">
+      >
         Cancel
       </button>
       <button
+          class="
+					w-24
+					bg-blue-600
+					hover:bg-blue-700
+					text-white
+					font-bold
+					py-1
+					px-4
+					rounded
+				"
           @click="onFinish"
-          class="w-24 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4
-      rounded">
+      >
         Done
       </button>
     </div>
@@ -52,22 +72,20 @@ export default {
       maxY: 0,
       paths: [],
       drawing: false,
-    }
+    };
   },
-  mounted() {
-  },
-  created() {
-  },
+  mounted() {},
+  created() {},
   methods: {
     handlePanStart(event) {
       let coordinate;
-      if (event.type === 'mousedown') {
-        coordinate = this.handleMousedown(event)
+      if (event.type === "mousedown") {
+        coordinate = this.handleMousedown(event);
       }
-      if (event.type === 'touchstart') {
-        coordinate = this.handleTouchStart(event)
+      if (event.type === "touchstart") {
+        coordinate = this.handleTouchStart(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       let canvas = document.getElementById("canvas-container");
       if (coordinate.detail.target !== canvas) {
@@ -88,13 +106,13 @@ export default {
         return;
       }
       let coordinate;
-      if (event.type === 'mousemove') {
-        coordinate = this.handleMousemove(event)
+      if (event.type === "mousemove") {
+        coordinate = this.handleMousemove(event);
       }
-      if (event.type === 'touchmove') {
-        coordinate = this.handleTouchmove(event)
+      if (event.type === "touchmove") {
+        coordinate = this.handleTouchmove(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       this.x = coordinate.detail.x;
       this.y = coordinate.detail.y;
@@ -107,13 +125,13 @@ export default {
     },
     handlePanEnd(event) {
       let coordinate;
-      if (event.type === 'mouseup') {
-        coordinate = this.handleMouseup(event)
+      if (event.type === "mouseup") {
+        coordinate = this.handleMouseup(event);
       }
-      if (event.type === 'touchend') {
-        coordinate = this.handleTouchend(event)
+      if (event.type === "touchend") {
+        coordinate = this.handleTouchend(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       this.drawing = false;
     },
@@ -128,16 +146,14 @@ export default {
         originHeight: height,
         path: this.paths.reduce((acc, cur) => {
           return acc + cur[0] + (cur[1] + dx) + "," + (cur[2] + dy);
-        }, "")
+        }, ""),
       });
     },
     onClose() {
       this.$emit("onCancel");
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

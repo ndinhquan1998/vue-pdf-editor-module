@@ -1,28 +1,43 @@
 <template>
   <div
       class="absolute left-0 top-0 select-none"
-      :style="{width: `${width + dw}px`,height: `${(width + dw)/ ratio}px`,transform: `translate(${x + dx}px, ${y + dy}px)`}"
+      :style="{
+			width: `${width + dw}px`,
+			height: `${(width + dw) / ratio}px`,
+			transform: `translate(${x + dx}px, ${y + dy}px)`,
+		}"
   >
     <div
+        class="
+				absolute
+				w-full
+				h-full
+				cursor-grab
+				border border-gray-400 border-dashed
+			"
+        :class="[
+				operation === 'move' ? 'cursor-grabbing' : '',
+				operation ? 'operation' : '',
+			]"
         @mousedown="handlePanStart"
         @touchstart="handlePanStart"
-        class="absolute w-full h-full cursor-grab border border-gray-400
-    border-dashed"
-        :class="[operation === 'move' ? 'cursor-grabbing':'',operation? 'operation':'']"
     >
       <div
           data-direction="left-top"
           class="absolute cursor-nwse-resize transform selector"
-          :style="{ top: '0%', left: '0%' }"/>
+          :style="{ top: '0%', left: '0%' }"
+      />
       <div
           data-direction="right-bottom"
           class="absolute cursor-nwse-resize transform selector"
-          :style="{ top: '100%', left: '100%' }"/>
+          :style="{ top: '100%', left: '100%' }"
+      />
     </div>
     <div
-        @click="onDelete"
         class="absolute cursor-pointer transform delete"
-        :style="{ top: '0%', left: '50%' }">
+        :style="{ top: '0%', left: '50%' }"
+        @click="onDelete"
+    >
       <img class="w-full h-full" src="/delete.svg" alt="delete object"/>
     </div>
     <svg ref="svg" width="100%" height="100%">
@@ -32,7 +47,8 @@
           stroke-linecap="round"
           stroke="black"
           fill="none"
-          :d="path"/>
+          :d="path"
+      />
     </svg>
   </div>
 </template>
@@ -43,7 +59,16 @@ import itemEventsMixin from "@/components/ItemEventsMixin";
 export default {
   name: "DrawingComponent",
   mixins: [itemEventsMixin],
-  props: ['originWidth', 'originHeight', 'width', 'height', 'x', 'y', 'pageScale', 'path'],
+  props: [
+    "originWidth",
+    "originHeight",
+    "width",
+    "height",
+    "x",
+    "y",
+    "pageScale",
+    "path",
+  ],
   data() {
     return {
       startX: null,
@@ -55,32 +80,34 @@ export default {
       dw: 0,
       direction: "",
       // ratio: this.originWidth / this.originHeight,
-    }
+    };
   },
-  watch: {},
   computed: {
     ratio() {
-      return this.originWidth / this.originHeight
-    }
+      return this.originWidth / this.originHeight;
+    },
   },
+  watch: {},
   mounted() {
     this.render();
   },
-  created() {
-  },
+  created() {},
   methods: {
     async render() {
-      this.$refs.svg.setAttribute("viewBox", `0 0 ${this.originWidth} ${this.originHeight}`);
+      this.$refs.svg.setAttribute(
+          "viewBox",
+          `0 0 ${this.originWidth} ${this.originHeight}`,
+      );
     },
     handlePanMove(event) {
       let coordinate;
-      if (event.type === 'mousemove') {
-        coordinate = this.handleMousemove(event)
+      if (event.type === "mousemove") {
+        coordinate = this.handleMousemove(event);
       }
-      if (event.type === 'touchmove') {
-        coordinate = this.handleTouchmove(event)
+      if (event.type === "touchmove") {
+        coordinate = this.handleTouchmove(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       const _dx = (coordinate.detail.x - this.startX) / this.pageScale;
       const _dy = (coordinate.detail.y - this.startY) / this.pageScale;
@@ -105,18 +132,18 @@ export default {
 
     handlePanEnd(event) {
       let coordinate;
-      if (event.type === 'mouseup') {
-        coordinate = this.handleMouseup(event)
+      if (event.type === "mouseup") {
+        coordinate = this.handleMouseup(event);
       }
-      if (event.type === 'touchend') {
-        coordinate = this.handleTouchend(event)
+      if (event.type === "touchend") {
+        coordinate = this.handleTouchend(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       if (this.operation === "move") {
         this.$emit("onUpdate", {
           x: this.x + this.dx,
-          y: this.y + this.dy
+          y: this.y + this.dy,
         });
         this.dx = 0;
         this.dy = 0;
@@ -125,7 +152,7 @@ export default {
           x: this.x + this.dx,
           y: this.y + this.dy,
           width: this.width + this.dw,
-          scale: (this.width + this.dw) / this.originWidth
+          scale: (this.width + this.dw) / this.originWidth,
         });
         this.dx = 0;
         this.dy = 0;
@@ -136,13 +163,13 @@ export default {
     },
     handlePanStart(event) {
       let coordinate;
-      if (event.type === 'mousedown') {
-        coordinate = this.handleMousedown(event)
+      if (event.type === "mousedown") {
+        coordinate = this.handleMousedown(event);
       }
-      if (event.type === 'touchstart') {
-        coordinate = this.handleTouchStart(event)
+      if (event.type === "touchstart") {
+        coordinate = this.handleTouchStart(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       this.startX = coordinate.detail.x;
       this.startY = coordinate.detail.y;
@@ -154,16 +181,15 @@ export default {
     },
     onDelete() {
       this.$emit("onDelete");
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
 .operation {
   background-color: rgba(0, 0, 0, 0.1);
 }
-
 .selector {
   border-radius: 10px;
   width: 12px;
@@ -173,7 +199,6 @@ export default {
   background-color: #32b5fe;
   border: 1px solid #32b5fe;
 }
-
 .delete {
   border-radius: 10px;
   width: 18px;
