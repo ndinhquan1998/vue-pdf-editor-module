@@ -2,82 +2,133 @@
   <div>
     <toolbar-component v-if="operation === 'edit' || operation === 'tool'">
       <tapout-component
+          class="
+					h-full
+					flex
+					justify-center
+					items-center
+					bg-gray-300
+					border-b border-gray-400
+				"
           @onfocus="onFocusTool"
           @tapout="onBlurTool"
-          class="h-full flex justify-center items-center bg-gray-300 border-b
-          border-gray-400"
-          >
+      >
         <div class="mr-2 flex items-center">
           <img src="/line_height.svg" class="w-6 mr-2" alt="Line height"/>
           <input
+              v-model="lineHeight_"
               type="number"
               min="1"
               max="10"
               step="0.1"
               class="h-6 w-12 text-center flex-shrink-0 rounded-sm"
-              v-model="lineHeight_"/>
+          />
         </div>
         <div class="mr-2 flex items-center">
           <img src="/text.svg" class="w-6 mr-2" alt="Font size"/>
           <input
+              v-model="size_"
               type="number"
               min="12"
               max="120"
               step="1"
               class="h-6 w-12 text-center flex-shrink-0 rounded-sm"
-              v-model="size_"/>
+          />
         </div>
         <div class="mr-2 flex items-center">
           <img src="/text-family.svg" class="w-4 mr-2" alt="Font family"/>
           <div class="relative w-32 md:w-40">
             <select
                 v-model="fontFamily_"
+                class="
+								block
+								appearance-none
+								h-6
+								w-full
+								bg-white
+								pl-2
+								pr-8
+								rounded-sm
+								leading-tight
+							"
                 @change="onChangeFont"
-                class="block appearance-none h-6 w-full bg-white pl-2 pr-8 rounded-sm leading-tight">
-              <option v-for="(family,index) in Families" :key="index" :value="family">{{ family }}</option>
+            >
+              <option
+                  v-for="(family, index) in Families"
+                  :key="index"
+                  :value="family"
+              >
+                {{ family }}
+              </option>
             </select>
             <div
-                class="pointer-events-none absolute inset-y-0 right-0 flex
-                items-center px-2 text-gray-700">
+                class="
+								pointer-events-none
+								absolute
+								inset-y-0
+								right-0
+								flex
+								items-center
+								px-2
+								text-gray-700
+							"
+            >
               <svg
                   class="fill-current h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20">
+                  viewBox="0 0 20 20"
+              >
                 <path
                     d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757
-                    6.586 4.343 8z"/>
+                    6.586 4.343 8z"
+                />
               </svg>
             </div>
           </div>
         </div>
         <div
-            @click="onDelete"
-            class="w-5 h-5 rounded-full bg-white cursor-pointer">
+            class="w-5 h-5 rounded-full bg-white cursor-pointer"
+            @click="onDelete">
           <img class="w-full h-full" src="/delete.svg" alt="delete object"/>
         </div>
       </tapout-component>
     </toolbar-component>
     <tapout-component
-        @tapout="onBlur"
         class="absolute left-0 top-0 select-none"
-        :style="{transform: `translate(${x + dx}px, ${y + dy}px)`}"
+        :style="{ transform: `translate(${x + dx}px, ${y + dy}px)` }"
+        @tapout="onBlur"
     >
       <div
+          class="
+					absolute
+					w-full
+					h-full
+					cursor-grab
+					border border-dotted border-gray-500
+				"
+          :class="[
+					!operation ? 'cursor-grab' : '',
+					operation === 'move' ? 'cursor-grabbing' : '',
+					['edit', 'tool'].includes(operation)
+						? 'pointer-events-none border-gray-800 border-dashed'
+						: '',
+				]"
           @mousedown="handlePanStart"
           @touchstart="handlePanStart"
-          class="absolute w-full h-full cursor-grab border border-dotted
-    border-gray-500"
-          :class="[!operation ? 'cursor-grab':'',operation === 'move'?'cursor-grabbing':'',['edit', 'tool'].includes(operation)?'pointer-events-none border-gray-800 border-dashed':'']"
       />
       <div
           ref="editable"
-          @focus="onFocus"
-          @keydown="onKeydown"
-          @paste.prevent="onPaste"
           contenteditable="true"
           spellcheck="false"
           class="outline-none whitespace-no-wrap"
-          :style="{fontSize: `${size_}px`, fontFamily: `${fontFamily_}, serif`,lineHeight: `${lineHeight_}`}"
+          :style="{
+					fontSize: `${size_}px`,
+					fontFamily: `${fontFamily_}, serif`,
+					lineHeight: `${lineHeight_}`,
+				}"
+          @focus="onFocus"
+          @keydown="onKeydown"
+          @paste.prevent="onPaste"
       />
     </tapout-component>
   </div>
@@ -97,7 +148,7 @@ export default {
     TapoutComponent,
   },
   mixins: [itemEventsMixin],
-  props: ['size', 'text', 'lineHeight', 'x', 'y', 'fontFamily', 'pageScale'],
+  props: ["size", "text", "lineHeight", "x", "y", "fontFamily", "pageScale"],
   data() {
     return {
       Families: Object.keys(Fonts),
@@ -110,7 +161,7 @@ export default {
       size_: this.size,
       lineHeight_: this.lineHeight,
       fontFamily_: this.fontFamily,
-    }
+    };
   },
   computed: {
     // size_() {
@@ -123,7 +174,7 @@ export default {
     //   return this.fontFamily
     // }
   },
-  watch:{
+  watch: {
     // size(value) {
     //   this.size_ = value;
     // },
@@ -137,18 +188,17 @@ export default {
   mounted() {
     this.render();
   },
-  created() {
-  },
+  created() {},
   methods: {
     handlePanMove(event) {
       let coordinate;
-      if (event.type === 'mousemove') {
-        coordinate = this.handleMousemove(event)
+      if (event.type === "mousemove") {
+        coordinate = this.handleMousemove(event);
       }
-      if (event.type === 'touchmove') {
-        coordinate = this.handleTouchmove(event)
+      if (event.type === "touchmove") {
+        coordinate = this.handleTouchmove(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       this.dx = (coordinate.detail.x - this.startX) / this.pageScale;
       this.dy = (coordinate.detail.y - this.startY) / this.pageScale;
@@ -156,20 +206,20 @@ export default {
 
     handlePanEnd(event) {
       let coordinate;
-      if (event.type === 'mouseup') {
-        coordinate = this.handleMouseup(event)
+      if (event.type === "mouseup") {
+        coordinate = this.handleMouseup(event);
       }
-      if (event.type === 'touchend') {
-        coordinate = this.handleTouchend(event)
+      if (event.type === "touchend") {
+        coordinate = this.handleTouchend(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       if (this.dx === 0 && this.dy === 0) {
         return this.$refs.editable.focus();
       }
       this.$emit("onUpdate", {
         x: this.x + this.dx,
-        y: this.y + this.dy
+        y: this.y + this.dy,
       });
       this.dx = 0;
       this.dy = 0;
@@ -177,13 +227,13 @@ export default {
     },
     handlePanStart(event) {
       let coordinate;
-      if (event.type === 'mousedown') {
-        coordinate = this.handleMousedown(event)
+      if (event.type === "mousedown") {
+        coordinate = this.handleMousedown(event);
       }
-      if (event.type === 'touchstart') {
-        coordinate = this.handleTouchStart(event)
+      if (event.type === "touchstart") {
+        coordinate = this.handleTouchStart(event);
       }
-      if (!coordinate) return console.log('ERROR');
+      if (!coordinate) return console.log("ERROR");
 
       this.startX = coordinate.detail.x;
       this.startY = coordinate.detail.y;
@@ -198,7 +248,7 @@ export default {
       this.sanitize();
       this.$emit("onUpdate", {
         lines: this.extractLines(),
-        width: this.$refs.editable.clientWidth
+        width: this.$refs.editable.clientWidth,
       });
       this.operation = "";
     },
@@ -222,10 +272,13 @@ export default {
         if (focusNode === this.$refs.editable) {
           this.$refs.editable.insertBefore(
               document.createElement("br"),
-              childNodes[focusOffset]
+              childNodes[focusOffset],
           );
         } else if (focusNode instanceof HTMLBRElement) {
-          this.$refs.editable.insertBefore(document.createElement("br"), focusNode);
+          this.$refs.editable.insertBefore(
+              document.createElement("br"),
+              focusNode,
+          );
         }
         // the caret is at a text line but not end
         else if (focusNode.textContent.length !== focusOffset) {
@@ -234,10 +287,17 @@ export default {
         } else {
           let br = focusNode.nextSibling;
           if (br) {
-            this.$refs.editable.insertBefore(document.createElement("br"), br);
+            this.$refs.editable.insertBefore(
+                document.createElement("br"),
+                br,
+            );
           } else {
-            br = this.$refs.editable.appendChild(document.createElement("br"));
-            br = this.$refs.editable.appendChild(document.createElement("br"));
+            br = this.$refs.editable.appendChild(
+                document.createElement("br"),
+            );
+            br = this.$refs.editable.appendChild(
+                document.createElement("br"),
+            );
           }
           // set selection to new line
           selection.collapse(br, 0);
@@ -253,7 +313,7 @@ export default {
         lines: this.extractLines(),
         lineHeight: this.lineHeight_,
         size: this.size_,
-        fontFamily: this.fontFamily_
+        fontFamily: this.fontFamily_,
       });
       this.operation = "";
     },
@@ -261,7 +321,7 @@ export default {
       let weirdNode;
       while (
           (weirdNode = Array.from(this.$refs.editable.childNodes).find(
-              node => !["#text", "BR"].includes(node.nodeName)
+              (node) => !["#text", "BR"].includes(node.nodeName),
           ))
           ) {
         this.$refs.editable.removeChild(weirdNode);
@@ -269,7 +329,7 @@ export default {
     },
     onChangeFont() {
       this.$emit("onSelectFont", {
-        name: this.fontFamily_
+        name: this.fontFamily_,
       });
     },
     render() {
@@ -296,9 +356,7 @@ export default {
       this.operation = "";
       this.$emit("onDelete");
     },
-  }
-}
+  },
+};
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>
