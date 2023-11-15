@@ -65,6 +65,12 @@ const fonts = {
 // Available fonts
 export const Fonts = {
   ...fonts,
+  "Times-News-Roman": {
+    src: '/times.ttf',
+    correction(size, lineHeight) {
+      return (size * lineHeight - size) / 2 + size / 7;
+    },
+  },
 };
 
 export function fetchFont(name) {

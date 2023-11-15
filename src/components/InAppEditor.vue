@@ -203,12 +203,12 @@ export default {
       pages: [],
       pagesScale: [],
       allObjects: [],
-      currentFont: "Times-Roman",
+      currentFont: "Times-News-Roman",
       focusId: null,
       selectedPageIndex: -1,
       saving: false,
       addingDrawing: false,
-      DEBUG_LINK: "https://raw.githubusercontent.com/pdf-association/pdf20examples/master/pdf20-utf8-test.pdf"
+      DEBUG_LINK: "https://www.africau.edu/images/default/sample.pdf"
     }
   },
   async mounted() {
@@ -277,7 +277,31 @@ export default {
       const url = window.URL.createObjectURL(blob);
       return PDFJS.getDocument(url).promise;
     },
-    async addPDF(file) {
+
+      async findTextCoordinates(pdfUrl, searchText) {
+          try {
+              const pdfDocument = await readAsPDF(pdfUrl);
+              console.log("=>(InAppEditor.vue:287) pdfDocument", pdfDocument);
+              const totalPages = pdfDocument.numPages;
+
+              for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+                  const page = await pdfDocument.getPage(pageNumber);
+                  const textContent = await page.getTextContent();
+
+                  for (const item of textContent.items) {
+                      if (item.str.includes(searchText)) {
+                          const [x, y] = item.transform;
+                          console.log(`Found "${searchText}" at coordinates x:${x}, y:${y} on page ${pageNumber}`);
+                      }
+                  }
+              }
+          } catch (error) {
+              console.error('Error finding text coordinates:', error);
+          }
+      },
+
+
+      async addPDF(file) {
       try {
         this.resetDefaultState();
 
@@ -327,7 +351,7 @@ export default {
           originHeight: height,
           canvasWidth: canvasWidth,
           canvasHeight: canvasHeight,
-          x: 0,
+          x: 10,
           y: 0,
           payload: img,
           file
@@ -406,6 +430,7 @@ export default {
               )
               : objects
       );
+          console.log("=>(InAppEditor.vue:403) this.allObjects", this.allObjects);
     },
 
     deleteObject(objectId) {
