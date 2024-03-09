@@ -15,8 +15,11 @@
     "postcss": "^8.4.18",
     "postcss-load-config": "^4.0.1",
     "register-service-worker": "^1.7.2",
+    "spinkit": "^2.0.1",
     "tailwindcss": "^3.2.1",
-    "vue": "^2.6.14"
+    "vue": "^2.6.14",
+    "vue-router": "^3.5.1",
+    "yarn": "^1.22.21"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

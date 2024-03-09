@@ -1,18 +1,16 @@
 <template>
   <div id="app">
-    <InAppEditor msg="Welcome to Your Vue.js App"/>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import InAppEditor from './components/InAppEditor.vue'
-
 export default {
   name: 'App',
-  components: {
-    InAppEditor
-  }
-}
+  // mounted() {
+  //   this.$router.push("/pdfUrl");
+  // },
+};
 </script>
 
 <style>

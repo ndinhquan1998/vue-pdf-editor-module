@@ -60,7 +60,7 @@
           class="w-20 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3
       md:px-4 mr-3 md:mr-4 rounded"
           :class="[(pages.length === 0 || saving || !pdfFile) ?'cursor-not-allowed bg-blue-700':'']">
-        {{ saving ? 'Saving' : 'Save' }}
+        {{ saving ? 'Downloading' : 'Download' }}
       </button>
     </div>
     <div v-if="addingDrawing">
@@ -73,7 +73,8 @@
             @onCancel="onCancelDrawingCanvas"/>
       </div>
     </div>
-    <div v-if="pages.length" class="w-full">
+    <div v-if="!loading">
+      <div v-if="pages.length" class="w-full">
       <div class="flex justify-center px-5 w-full md:hidden">
         <img src="/edit.svg" class="mr-2" alt="a pen, edit pdf name"/>
         <input
@@ -154,11 +155,29 @@
         <span class=" font-bold text-3xl text-gray-500">Drag something here</span>
       </div>
     </div>
+    </div>
+    <div v-else>
+      <div class="sk-circle">
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+  <div class="sk-circle-dot"></div>
+</div>
+    </div>
   </div>
 </template>
 
 <script>
 import "pdfjs-dist/web/pdf_viewer.css";
+import 'spinkit/spinkit.css';
 
 const PDFJS = require("pdfjs-dist");
 PDFJS.GlobalWorkerOptions.workerSrc = require("pdfjs-dist/build/pdf.worker");
@@ -189,7 +208,7 @@ export default {
     ImageItem,
     TextItem,
     Drawing,
-    DrawingCanvas
+    DrawingCanvas,
   },
   props: {
     msg: String
@@ -208,30 +227,33 @@ export default {
       selectedPageIndex: -1,
       saving: false,
       addingDrawing: false,
-      DEBUG_LINK: "https://www.africau.edu/images/default/sample.pdf"
+      DEBUG_LINK: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      loading: false,
     }
   },
   async mounted() {
     await this.init();
   },
-  created() {
-  },
-  watch: {},
   methods: {
     async init() {
-      try {
-        const res = await fetch(this.DEBUG_LINK);
-        const pdfBlob = await res.blob();
-        await this.addPDF(pdfBlob);
-        this.selectedPageIndex = 0;
-        setTimeout(() => {
-          fetchFont(this.currentFont);
-          // prepareAssets();
-        }, 5000);
-      } catch (e) {
-        console.log(e);
-      }
-    },
+  if (this.$route.hash) {
+    this.DEBUG_LINK = this.$route.hash.replace('#', '');
+    this.loading = true;
+    try {
+      const res = await fetch(this.DEBUG_LINK);
+      const pdfBlob = await res.blob();
+      await this.addPDF(pdfBlob);
+      this.selectedPageIndex = 0;
+      setTimeout(() => {
+        fetchFont(this.currentFont);
+        // prepareAssets();
+      }, 5000);
+    } catch (e) {
+      console.log(e);
+    }
+    this.loading = false;
+  }
+},
 
     onFinishDrawingCanvas(e) {
       const {originWidth, originHeight, path} = e;
@@ -321,6 +343,8 @@ export default {
         console.log("Failed to add pdf.");
         throw e;
       }
+
+      this.loading = true;
     },
     async onUploadImage(e) {
       const file = e.target.files[0];
